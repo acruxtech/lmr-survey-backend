@@ -1,0 +1,5 @@
+[db]
+user = postgres
+password = pass
+address = localhost
+name = lmr_survey

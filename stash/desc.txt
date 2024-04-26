@@ -1,0 +1,188 @@
+/survey/{uuid}
+отдает опрос по его uuid
+
+output example
+{
+    "title": "мой опрос",
+    "topic": "какая то категория",
+    "show_result_after_passing": false,
+    questions: [
+        ...
+    ],
+}
+
+
+/surveys?from=x&to=y
+x and y - порядковые номера опросов, начиная с нуля
+
+output example
+{
+    surveys: [
+        {
+            "title": "мой опрос1",
+            "topic": "какая то категория",
+            "show_result_after_passing": false,
+            questions: [
+                ...
+            ],
+        },
+        {
+            "title": "мой опрос2",
+            "topic": "какая то категория",
+            "show_result_after_passing": false,
+            questions: [
+                ...
+            ],
+        },
+        {
+            "title": "мой опрос3",
+            "topic": "какая то категория",
+            "show_result_after_passing": false,
+            questions: [
+                ...
+            ],
+        },
+        {
+            "title": "мой опрос4",
+            "topic": "какая то категория",
+            "show_result_after_passing": false,
+            questions: [
+                ...
+            ],
+        },
+        {
+            "title": "мой опрос5",
+            "topic": "какая то категория",
+            "show_result_after_passing": false,
+            questions: [
+                ...
+            ],
+        },
+        {
+            "title": "мой опрос6",
+            "topic": "какая то категория",
+            "show_result_after_passing": false,
+            questions: [
+                ...
+            ],
+        },
+        {
+            "title": "мой опрос7",
+            "topic": "какая то категория",
+            "show_result_after_passing": false,
+            questions: [
+                ...
+            ],
+        },
+    ]
+}
+
+
+/create
+создает опрос и возвращает access_hash и link на опрос
+
+input example
+{
+    "title": "пробник егэ",
+    "topic": "Образование",
+    "show_result_after_passing": true,
+    questions: [
+        {
+            "title": "задача 1",
+            "text": "сколько?",
+            "type": "field",
+            "coefficient": 2,
+            "reward": 5
+        },
+        {
+            "title": "задача 2",
+            "text": "почему?",
+            "type": "radio",
+            "answers": [
+                "так надо",
+                "потому что",
+                "ээ"
+            ],
+            "reward": 7,
+            "sanction": 7
+        },
+        {
+            "title": "задача 3",
+            "text": "когда?",
+            "type": "checkox",
+            "answers": [
+                "вчера",
+                "сегодня",
+                "завтра"
+            ],
+        }
+    ],
+    "correct_answers": [
+        "три слона", 
+        "ээ",
+        [
+            "вчера",
+            "сегодня"
+        ],
+    ],
+    "passing_score": 40,
+    "time_to_pass": 235,
+}
+
+output example
+{
+    "uuid": "1bb4d3ed-b3c3-4984-b3fa-06d835302b77",
+    "access_hash": "9747667a-ce27-4b47-9c4b-96f6632efda7"
+}
+из uuid создается ссылка https://lmr.org/survey/{uuid}
+по access_hash получается доступ к редактированию и удалению опроса, просмотра инфы о нем.
+должен передаваться по /survey/{uuid} в post запросе
+
+
+/sumbit
+отправляет ответы пользователя
+
+input example
+{
+    "answers": [
+        "два слона", 
+        "ээ",
+        [
+            "завтра",
+            "сегодня"
+        ],
+    ]
+}
+
+output example
+{
+    "after_passing_text": "молодец",       ну если был установлен
+    "show_result_after_passing": 100,      ну если был разрешен показ
+}
+
+
+/result/{uuid}
+возвращает общие результаты опроса. в параметрах post запроса надо указать access_hash
+
+input_example
+{
+    "access_hash": "9747667a-ce27-4b47-9c4b-96f6632efda7"
+}
+
+output example
+{
+    "title": "мой опрос",
+    "topic": "какая то категория",
+    "results": {
+        "вопрос 1": [
+            "вариант 1": 10,
+            "вариант 2": 20,
+            "вариант 3": 30,
+        ],
+        "вопрос 2": [
+            миллион пользовательских вариантов, если type == field
+        ]
+    }
+}
+
+
