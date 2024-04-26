@@ -21,7 +21,7 @@ class Repo:
         self.conn: AsyncSession = conn
 
 
-    async def add_user(
+    async def add_survey(
             self, 
             title: str,
             topic: str,
@@ -31,11 +31,11 @@ class Repo:
             after_passing_text: str = None,
             passing_score: str = None,
             time_to_pass: str = None,
-        ):
+        ) -> Survey:
 
         survey = Survey(
-            uuid=uuid4(),
-            access_hash=uuid4(),
+            uuid=str(uuid4()),
+            access_hash=str(uuid4()),
             title=title,
             topic=topic,
             is_public=is_public,
@@ -51,23 +51,25 @@ class Repo:
                     title=question_data.get("title", f"Вопрос №{i + 1}"),
                     text=question_data["text"],
                     type=question_data["type"],
-                    answers="|".join(question_data["answers"]),
-                    correct_answers="|".join(question_data["correct_answers"]),
-                    reward=question_data["reward"],
-                    sanction=question_data["sanction"],
+                    answers="|".join(question_data.get("answers", [])),
+                    correct_answers="|".join(question_data.get("correct_answers", [])),
+                    reward=question_data.get("reward", None),
+                    sanction=question_data.get("sanction"),
                 )
             )
 
         self.conn.add(survey)
         await self.conn.commit()
 
+        return survey
 
-    # async def get_users(self) -> list[User]:
-    #     res = await self.conn.execute(
-    #             select(User).options(selectinload(User.jobs))
-    #         )
 
-    #     return res.scalars().all()
+    async def get_surveys(self) -> list[Survey]:
+        res = await self.conn.execute(
+                select(Survey).options(selectinload(Survey.answers))
+            )
+
+        return res.scalars().all()
     
 
     # async def get_amount_users(self) -> int:

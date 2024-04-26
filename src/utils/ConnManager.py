@@ -22,4 +22,5 @@ class ConnManager:
 
             return await func(**kwargs)
 
+        wrapper.__name__ = func.__name__
         return wrapper

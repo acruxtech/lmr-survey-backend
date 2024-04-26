@@ -4,7 +4,7 @@ import logging
 
 from sqlalchemy.orm import sessionmaker
 
-import src.endpoints.basic 
+from src.endpoints.basic import register_basic 
 from src.utils.variables import app
 from src.utils.ConnManager import ConnManager
 from db.pool_creater import create_db_pool
@@ -39,6 +39,9 @@ async def main():
     )
 
     ConnManager.set_pool(db_pool)
+
+    register_basic()
+    
     app.run(debug=True)
 
 

@@ -5,7 +5,6 @@ from sqlalchemy.orm import relationship
 from db.base import Base
 
 
-
 class BaseCommon(Base):
     __abstract__ = True
 
@@ -44,12 +43,14 @@ class Question(BaseCommon):
     reward = Column(Integer, default=1)                         # сколько дается за правильный ответ
     sanction = Column(Integer, default=0)                       # сколько отбирается за неправильный ответ
 
+    survey_id = Column(Integer, ForeignKey("surveys.id"))
     survey = relationship("Survey", back_populates="questions")
 
 
-class Answer:
+class Answer(BaseCommon):
     __tablename__ = "answers"
     
     text = Column(Text, nullable=True)                          # список правильных ответов через |
 
+    survey_id = Column(Integer, ForeignKey("surveys.id"))
     survey = relationship("Survey", back_populates="answers")
