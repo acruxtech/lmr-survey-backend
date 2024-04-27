@@ -20,7 +20,14 @@ class ConnManager:
             kwargs["db"] = db
             kwargs["repo"] = Repo(db)
 
-            return await func(**kwargs)
+            res = await func(**kwargs)
+
+            del kwargs["repo"]
+            db = kwargs.get("db")
+            if db:
+                await db.close()
+
+            return res
 
         wrapper.__name__ = func.__name__
         return wrapper
