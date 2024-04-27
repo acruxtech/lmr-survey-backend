@@ -72,6 +72,15 @@ class Repo:
         return res.scalars().all()
     
 
+    async def get_survey_by_uuid(self, uuid: str) -> Survey:
+        res = await self.conn.execute(
+                select(Survey).options(selectinload(Survey.answers)).where(Survey.uuid == uuid)
+            )
+
+        return res.scalars().first()
+    
+    
+
     # async def get_amount_users(self) -> int:
     #     res = await self.conn.execute(
     #         "SELECT COUNT(*) from users"

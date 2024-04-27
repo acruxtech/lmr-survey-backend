@@ -1,6 +1,7 @@
 import logging
 from flask import request
 
+from src.utils.functions import get_survey_json
 from src.utils.variables import app
 from src.utils.ConnManager import ConnManager
 from db.services.repository import Repo
@@ -43,8 +44,8 @@ async def surveys(repo: Repo, **kwargs):
         2. to (int, порядковый номер опроса, на котором надо заканчивать)
     """
     all_surveys = surveys = await repo.get_surveys()
-    from_ = request.args.get("from", 0)
-    to_ = request.args.get("to", len(all_surveys))
+    from_ = int(request.args.get("from", 0))
+    to_ = int(request.args.get("to", len(all_surveys)))
     surveys = all_surveys[from_:to_]
     
     if request.args.get("sorted_by", None):
@@ -57,12 +58,21 @@ async def surveys(repo: Repo, **kwargs):
             func, reverse = lambda x: len(x.answers), True
         surveys.sort(key=func, reverse=reverse)
 
-    print(surveys)
+    return [get_survey_json(survey) for survey in surveys]
 
-    # return [survey for survey in surveys]
+
+@ConnManager.db_decorator
+async def survey(repo: Repo, **kwargs):
+    uuid = request.args.get("uuid", None)
+    survey = await repo.get_survey_by_uuid(uuid)
+    if not survey:
+        return "Survey with same uuid doesn't exist", 404
+
+    return get_survey_json(survey)
 
 
 def register_basic():
-    app.add_url_rule("/create", view_func=create) 
-    app.add_url_rule("/surveys", view_func=surveys) 
+    app.add_url_rule("/create", view_func=create, methods=["POST"]) 
+    app.add_url_rule("/surveys", view_func=surveys, methods=["GET"]) 
+    app.add_url_rule("/survey", view_func=survey, methods=["GET"]) 
 

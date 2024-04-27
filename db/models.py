@@ -27,8 +27,8 @@ class Survey(BaseCommon):
     passing_score = Column(Integer, nullable=True)              # проходной балл
     time_to_pass = Column(Integer, nullable=True)               # в минутах
 
-    questions = relationship("Question")
-    answers = relationship("Answer")
+    questions = relationship("Question", lazy="selectin")
+    answers = relationship("Answer", lazy="selectin")
 
 
 class Question(BaseCommon):

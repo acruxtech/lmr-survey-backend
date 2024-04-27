@@ -166,3 +166,7 @@ output example
 }
 
 
+{
+  "access_hash": "c3f05c27-5594-45b0-933f-5a29449b7be7",
+  "uuid": "33074e25-7ffc-455b-80c7-5cc03fe3aec8"
+}
