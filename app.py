@@ -42,7 +42,7 @@ async def main():
 
     register_basic()
     
-    app.run(debug=True)
+    app.run()
 
 
 if __name__ == "__main__":
