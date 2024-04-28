@@ -50,8 +50,8 @@ class Repo:
                     text=question_data["text"],
                     answers="|".join(question_data.get("answers", [])),
                     correct_answers="|".join(question_data.get("correct_answers", [])),
-                    reward=question_data.get("reward", None),
-                    sanction=question_data.get("sanction", None),
+                    reward=question_data.get("reward", 1),
+                    sanction=question_data.get("sanction", 0),
                 )
             )
 
