@@ -63,7 +63,7 @@ class Repo:
 
     async def get_surveys(self) -> list[Survey]:
         res = await self.conn.execute(
-                select(Survey).options(selectinload(Survey.answers))
+                select(Survey).options(selectinload(Survey.questions))
             )
 
         return res.scalars().all()
@@ -71,7 +71,7 @@ class Repo:
 
     async def get_survey_by_uuid(self, uuid: str) -> Survey:
         res = await self.conn.execute(
-                select(Survey).options(selectinload(Survey.answers)).where(Survey.uuid == uuid)
+                select(Survey).options(selectinload(Survey.questions)).where(Survey.uuid == uuid)
             )
 
         return res.scalars().first()
