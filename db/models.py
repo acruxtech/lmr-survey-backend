@@ -42,15 +42,15 @@ class Question(BaseCommon):
 
     survey_id = Column(Integer, ForeignKey("surveys.id"))
     survey = relationship("Survey", back_populates="questions")
-    answers = relationship("Answer", lazy="selectin")
+    # answers = relationship("Answer", lazy="selectin")
 
 
-class Answer(BaseCommon):
-    __tablename__ = "answers"
+# class Answer(BaseCommon):
+#     __tablename__ = "answers"
     
-    user_hash = Column(Text)
-    text = Column(Text)                                         # список ответов через |
-    score = Column(Integer)                                     # сколько баллов получил/потерял человек
+#     user_hash = Column(Text)
+#     text = Column(Text)                                         # список ответов через |
+#     score = Column(Integer)                                     # сколько баллов получил/потерял человек
 
-    question_id = Column(Integer, ForeignKey("questions.id"))
-    question = relationship("Question", back_populates="answers")
+#     question_id = Column(Integer, ForeignKey("questions.id"))
+#     question = relationship("Question", back_populates="answers")

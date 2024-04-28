@@ -14,19 +14,19 @@ logger = logging.getLogger(__name__)
 async def create(repo: Repo, **kwargs):
     data = request.get_json(force=True)
 
-    # try:
-    survey = await repo.add_survey(
-        title=data["title"],
-        topic=data["topic"],
-        show_result_after_passing=data["show_result_after_passing"],
-        questions=data["questions"],
-        after_passing_text=data.get("after_passing_text", None),
-        passing_score=data.get("passing_score", None),
-        time_to_pass=data.get("time_to_pass", None),
-    )
-    # except BaseException as e:
-    #     logger.error(e)
-    #     return "Bad format! Be careful", 400
+    try:
+        survey = await repo.add_survey(
+            title=data["title"],
+            topic=data["topic"],
+            show_result_after_passing=data["show_result_after_passing"],
+            questions=data["questions"],
+            after_passing_text=data.get("after_passing_text", None),
+            passing_score=data.get("passing_score", None),
+            time_to_pass=data.get("time_to_pass", None),
+        )
+    except BaseException as e:
+        logger.error(e)
+        return "Bad format! Be careful", 400
     
     return {
         "uuid": survey.uuid,
@@ -68,6 +68,14 @@ async def survey(repo: Repo, **kwargs):
         return "Survey with same uuid doesn't exist", 404
 
     return get_survey_json(survey)
+
+
+@ConnManager.db_decorator
+async def delete(repo: Repo, **kwargs):
+    data = request.get_json(force=True)
+    await repo.delete_survey(data["uuid"], data["access_hash"])
+
+    return {"ok"}
 
 
 def register_basic():

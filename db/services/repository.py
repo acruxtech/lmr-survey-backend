@@ -7,7 +7,7 @@ from sqlalchemy import select, delete, and_, update, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from db.models import Survey, Question, Answer
+from db.models import Survey, Question
 
 
 logger = logging.getLogger(__name__)
@@ -44,16 +44,15 @@ class Repo:
         )
 
         for i, question_data in enumerate(questions):
-            survey.questions.append(
-                Question(
-                    title=question_data.get("title", f"Вопрос №{i + 1}"),
-                    text=question_data["text"],
-                    answers="|".join(question_data.get("answers", [])),
-                    correct_answers="|".join(question_data.get("correct_answers", [])),
-                    reward=question_data.get("reward", 1),
-                    sanction=question_data.get("sanction", 0),
-                )
+            question = await self.add_question(
+                title=question_data.get("title", f"Вопрос №{i + 1}"),
+                text=question_data["text"],
+                answers=question_data.get("answers", []),
+                correct_answers=question_data.get("correct_answers", []),
+                reward=question_data.get("reward", 1),
+                sanction=question_data.get("sanction", 0),
             )
+            survey.questions.append(question)
 
         self.conn.add(survey)
         await self.conn.commit()
@@ -76,57 +75,43 @@ class Repo:
 
         return res.scalars().first()
     
+
+    async def add_question(
+            self, 
+            text: str,
+            answers: list[str],
+            correct_answers: list[str],
+            title: str = None,
+            reward: int = 1,
+            sanction: int = 0,
+        ) -> Question:
+
+        question = Question(
+            title=title,
+            text=text,
+            answers="|".join(answers),
+            correct_answers="|".join(correct_answers),
+            reward=reward,
+            sanction=sanction,
+        )
+
+        self.conn.add(question)
+        await self.conn.commit()
+
+        return question
     
 
-    # async def get_amount_users(self) -> int:
-    #     res = await self.conn.execute(
-    #         "SELECT COUNT(*) from users"
-    #     )
+    async def delete_survey(self, uuid: str, access_hash: str):
+        survey = await self.get_survey_by_uuid(uuid)
+
+        if survey is None:
+            return
         
-    #     return res.scalars().one()
-    
-
-    # async def update_user(self, telegram_id: int = None, id: int = None, jobs: list[str] = None, **kwargs):
-    #     if telegram_id:
-    #         user = await self.get_user_by_telegram_id(telegram_id)
-    #     elif id:
-    #         user = await self.get_user_by_id(id)
-    #     else:
-    #         raise ValueError(f'Telegram ID or id is required')
-
-    #     if not user:
-    #         raise ValueError(f'User with id {telegram_id if telegram_id else id} doesn\'t exist')
+        if access_hash != survey.access_hash:
+            return
         
-    #     if jobs:
-    #         jobs = [await self.get_job_by_title(job_title) for job_title in jobs]
-    #         user.jobs.clear()
-    #         user.jobs.extend(jobs)
-
-    #     for key, value in kwargs.items():
-    #         if not hasattr(User, key):
-    #             raise ValueError(f'Class `User` doesn\'t have argument {key}') 
-    #         setattr(user, key, value)
-    #     await self.conn.commit()
+        await self.conn.delete(survey)
+        await self.conn.commit()
 
 
-    # async def get_users_where(self, **kwargs) -> list[User] | None:
-    #     res = await self.conn.execute(
-    #         select(User).where(
-    #             and_(
-    #                 *[User.__table__.columns[k] == v for k, v in kwargs.items()]
-    #             )
-    #         )
-    #     )
-        
-    #     return res.scalars().all()
-
-
-    # async def delete_user(self, telegram_id: int):
-    #     user = await self.get_user_by_telegram_id(telegram_id)
-
-    #     if user is None:
-    #         raise ValueError(f"User with {telegram_id=} doensn't exist") 
-        
-    #     await self.conn.delete(user)
-    #     await self.conn.commit()
         
