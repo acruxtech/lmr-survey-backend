@@ -18,7 +18,6 @@ async def create(repo: Repo, **kwargs):
         survey = await repo.add_survey(
             title=data["title"],
             topic=data["topic"],
-            is_public=data["is_public"],
             show_result_after_passing=data["show_result_after_passing"],
             questions=data["questions"],
             after_passing_text=data.get("after_passing_text", None),

@@ -21,14 +21,12 @@ class Survey(BaseCommon):
 
     title = Column(Text)
     topic = Column(Text)
-    is_public = Column(Boolean)
     show_result_after_passing = Column(Boolean)
     after_passing_text = Column(Text, nullable=True)            # текст, который покажется пользователю после прохождения
     passing_score = Column(Integer, nullable=True)              # проходной балл
     time_to_pass = Column(Integer, nullable=True)               # в минутах
 
     questions = relationship("Question", lazy="selectin")
-    answers = relationship("Answer", lazy="selectin")
 
 
 class Question(BaseCommon):
@@ -36,21 +34,23 @@ class Question(BaseCommon):
 
     title = Column(Text, nullable=True)                         # optional. тогда вопросы по порядку пронумеруются "Вопрос №1"
     text = Column(Text)
-    type = Column(Text)                                         # may be "field" | "checkbox" | "list" | "radio"
-    answers = Column(Text, nullable=True)                       # список вариантов через |
-    correct_answers = Column(Text, nullable=True)               # список правильных ответов через |
+    answers = Column(Text)                                      # список вариантов через |
+    correct_answers = Column(Text)                              # список правильных ответов через |
 
     reward = Column(Integer, default=1)                         # сколько дается за правильный ответ
     sanction = Column(Integer, default=0)                       # сколько отбирается за неправильный ответ
 
     survey_id = Column(Integer, ForeignKey("surveys.id"))
     survey = relationship("Survey", back_populates="questions")
+    answers = relationship("Answer", lazy="selectin")
 
 
 class Answer(BaseCommon):
     __tablename__ = "answers"
     
-    text = Column(Text, nullable=True)                          # список правильных ответов через |
+    user_hash = Column(Text)
+    text = Column(Text)                                         # список ответов через |
+    score = Column(Integer)                                     # сколько баллов получил/потерял человек
 
-    survey_id = Column(Integer, ForeignKey("surveys.id"))
-    survey = relationship("Survey", back_populates="answers")
+    question_id = Column(Integer, ForeignKey("questions.id"))
+    question = relationship("Question", back_populates="answers")

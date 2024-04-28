@@ -25,7 +25,6 @@ class Repo:
             self, 
             title: str,
             topic: str,
-            is_public: bool, 
             show_result_after_passing: bool,
             questions: list[dict],
             after_passing_text: str = None,
@@ -38,7 +37,6 @@ class Repo:
             access_hash=str(uuid4()),
             title=title,
             topic=topic,
-            is_public=is_public,
             show_result_after_passing=show_result_after_passing,
             after_passing_text=after_passing_text,
             passing_score=passing_score,
@@ -50,11 +48,10 @@ class Repo:
                 Question(
                     title=question_data.get("title", f"Вопрос №{i + 1}"),
                     text=question_data["text"],
-                    type=question_data["type"],
                     answers="|".join(question_data.get("answers", [])),
                     correct_answers="|".join(question_data.get("correct_answers", [])),
                     reward=question_data.get("reward", None),
-                    sanction=question_data.get("sanction"),
+                    sanction=question_data.get("sanction", None),
                 )
             )
 
