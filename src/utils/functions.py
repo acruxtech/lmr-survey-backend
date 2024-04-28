@@ -21,14 +21,13 @@ def get_survey_json(survey: Survey):
             "text": question.text,
             "reward": question.reward,
             "sanction": question.sanction,
+            "correct_answer": question.correct_answer,
         }
 
         if question.title:
             q["title"] = question.title
         if question.answers:
             q["answers"] = question.answers.split("|")
-        if question.correct_answers:
-            q["correct_answers"] = question.correct_answers.split("|")
         questions.append(q)
 
     res["questions"] = questions
