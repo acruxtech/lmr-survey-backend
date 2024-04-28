@@ -7,7 +7,7 @@ from sqlalchemy import select, delete, and_, update, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from db.models import Survey, Question
+from db.models import Survey, Question, UserResult
 
 
 logger = logging.getLogger(__name__)
@@ -48,7 +48,7 @@ class Repo:
                 title=question_data.get("title", f"Вопрос №{i + 1}"),
                 text=question_data["text"],
                 answers=question_data.get("answers", []),
-                correct_answers=question_data.get("correct_answers", []),
+                correct_answer=question_data["correct_answer"],
                 reward=question_data.get("reward", 1),
                 sanction=question_data.get("sanction", 0),
             )
@@ -74,32 +74,7 @@ class Repo:
             )
 
         return res.scalars().first()
-    
-
-    async def add_question(
-            self, 
-            text: str,
-            answers: list[str],
-            correct_answers: list[str],
-            title: str = None,
-            reward: int = 1,
-            sanction: int = 0,
-        ) -> Question:
-
-        question = Question(
-            title=title,
-            text=text,
-            answers="|".join(answers),
-            correct_answers="|".join(correct_answers),
-            reward=reward,
-            sanction=sanction,
-        )
-
-        self.conn.add(question)
-        await self.conn.commit()
-
-        return question
-    
+       
 
     async def delete_survey(self, uuid: str, access_hash: str):
         survey = await self.get_survey_by_uuid(uuid)
@@ -112,3 +87,47 @@ class Repo:
         
         await self.conn.delete(survey)
         await self.conn.commit()
+
+
+    async def add_question(
+            self, 
+            text: str,
+            answers: list[str],
+            correct_answer: str,
+            title: str = None,
+            reward: int = 1,
+            sanction: int = 0,
+        ) -> Question:
+
+        question = Question(
+            title=title,
+            text=text,
+            answers="|".join(answers),
+            correct_answer=correct_answer,
+            reward=reward,
+            sanction=sanction,
+        )
+
+        self.conn.add(question)
+        await self.conn.commit()
+
+        return question
+    
+
+    async def add_user_result(
+            self, 
+            answers: list[str],
+            score: int,
+            survey: Survey
+        ) -> UserResult:
+
+        user_result = UserResult(
+            text="|".join(answers),
+            score=score,
+        )
+
+        self.conn.add(user_result)
+        survey.user_results.append(user_result)
+        await self.conn.commit()
+
+        return user_result

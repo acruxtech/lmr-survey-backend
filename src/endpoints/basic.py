@@ -54,7 +54,7 @@ async def surveys(repo: Repo, **kwargs):
         elif sorted_by == "short":
             func, reverse = lambda x: x.time_to_pass, False
         elif sorted_by == "popular":
-            func, reverse = lambda x: len(x.answers), True
+            func, reverse = lambda x: len(x.user_results), True
         surveys.sort(key=func, reverse=reverse)
 
     return [get_survey_json(survey) for survey in surveys]
@@ -75,7 +75,56 @@ async def delete(repo: Repo, **kwargs):
     data = request.get_json(force=True)
     await repo.delete_survey(data["uuid"], data["access_hash"])
 
-    return {"ok"}
+    return "ok"
+
+
+@ConnManager.db_decorator
+async def submit(repo: Repo, **kwargs):
+    """
+    {
+        "uuid": ...,
+        "answers": [
+            "fjds",
+            "fjds",
+            "fjds",
+            "fjds",
+        ]
+    }
+    """
+    data = request.get_json(force=True)
+
+    survey = await repo.get_survey_by_uuid(data["uuid"])
+    if survey is None:
+        return
+    
+    score = 0
+    for user_answer, question in zip(data["answers"], survey.questions):
+        if user_answer == question.correct_answer:
+            score += 1
+
+    await repo.add_user_result(data["answers"], score, survey)
+
+    return {"score": score}
+
+
+@ConnManager.db_decorator
+async def statistics(repo: Repo, **kwargs):
+    data = request.get_json(force=True)
+    survey = await repo.get_survey_by_uuid(data["uuid"])
+    if survey is None:
+        return
+    
+    if survey.access_hash != data["access_hash"]:
+        return
+    
+    user_results = []
+    for user_result in survey.user_results:
+        user_results.append({
+            "user_answers": user_result.text.split("|"),
+            "score": user_result.score,
+        })
+
+    return {"user_results": user_results}
 
 
 def register_basic():
@@ -83,4 +132,5 @@ def register_basic():
     app.add_url_rule("/surveys", view_func=surveys, methods=["GET"]) 
     app.add_url_rule("/survey", view_func=survey, methods=["GET"]) 
     app.add_url_rule("/delete", view_func=delete, methods=["POST"]) 
-
+    app.add_url_rule("/submit", view_func=submit, methods=["POST"]) 
+    app.add_url_rule("/statistics", view_func=statistics, methods=["POST"]) 

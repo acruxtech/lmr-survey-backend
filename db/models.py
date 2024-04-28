@@ -27,6 +27,7 @@ class Survey(BaseCommon):
     time_to_pass = Column(Integer, nullable=True)               # в минутах
 
     questions = relationship("Question", lazy="selectin")
+    user_results = relationship("UserResult", lazy="selectin")
 
 
 class Question(BaseCommon):
@@ -35,22 +36,20 @@ class Question(BaseCommon):
     title = Column(Text, nullable=True)                         # optional. тогда вопросы по порядку пронумеруются "Вопрос №1"
     text = Column(Text)
     answers = Column(Text)                                      # список вариантов через |
-    correct_answers = Column(Text)                              # список правильных ответов через |
+    correct_answer = Column(Text)                               # правильный ответ
 
     reward = Column(Integer, default=1)                         # сколько дается за правильный ответ
     sanction = Column(Integer, default=0)                       # сколько отбирается за неправильный ответ
 
     survey_id = Column(Integer, ForeignKey("surveys.id"))
     survey = relationship("Survey", back_populates="questions")
-    # answers = relationship("Answer", lazy="selectin")
 
 
-# class Answer(BaseCommon):
-#     __tablename__ = "answers"
+class UserResult(BaseCommon):
+    __tablename__ = "user_results"
     
-#     user_hash = Column(Text)
-#     text = Column(Text)                                         # список ответов через |
-#     score = Column(Integer)                                     # сколько баллов получил/потерял человек
-
-#     question_id = Column(Integer, ForeignKey("questions.id"))
-#     question = relationship("Question", back_populates="answers")
+    text = Column(Text)                                         # список ответов через |
+    score = Column(Integer)                                     # сколько баллов получил/потерял человек
+    
+    survey_id = Column(Integer, ForeignKey("surveys.id"))
+    survey = relationship("Survey", back_populates="user_results")
