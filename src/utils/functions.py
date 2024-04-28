@@ -6,7 +6,6 @@ def get_survey_json(survey: Survey):
         "uuid": survey.uuid,
         "title": survey.title,
         "topic": survey.topic,
-        "is_public": survey.is_public,
         "show_result_after_passing": survey.show_result_after_passing,
     }
     if survey.after_passing_text:
@@ -20,7 +19,6 @@ def get_survey_json(survey: Survey):
     for question in survey.questions:
         q = {
             "text": question.text,
-            "type": question.type,
             "reward": question.reward,
             "sanction": question.sanction,
         }
