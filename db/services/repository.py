@@ -112,6 +112,3 @@ class Repo:
         
         await self.conn.delete(survey)
         await self.conn.commit()
-
-
-        

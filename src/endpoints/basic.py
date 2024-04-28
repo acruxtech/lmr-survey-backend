@@ -82,4 +82,5 @@ def register_basic():
     app.add_url_rule("/create", view_func=create, methods=["POST"]) 
     app.add_url_rule("/surveys", view_func=surveys, methods=["GET"]) 
     app.add_url_rule("/survey", view_func=survey, methods=["GET"]) 
+    app.add_url_rule("/delete", view_func=delete, methods=["POST"]) 
 
